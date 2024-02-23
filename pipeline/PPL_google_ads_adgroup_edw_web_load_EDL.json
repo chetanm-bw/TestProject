@@ -1,0 +1,1595 @@
+{
+	"name": "PPL_google_ads_adgroup_edw_web_load_EDL",
+	"properties": {
+		"description": "PPL_google_ads_adgroup_edw_web_load_EDL",
+		"activities": [
+			{
+				"name": "V_Sysdate",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_Sysdate",
+					"value": {
+						"value": "@formatDateTime(convertFromUtc(utcNow(),'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "LKP_Fetch_Param_From_SF_Table",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SnowflakeSource",
+						"query": "select\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_End_Date_Override')as P_End_Date_Override,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Begin_Date_Override')as P_Begin_Date_Override,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Stage_Database')as P_Stage_Database,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Stage_Schema')as P_Stage_Schema,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Target_Table_Ingestion')as P_Target_Table_Ingestion,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Stage_Table')as P_Stage_Table,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Source_Path')as P_Source_Path,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Staging_File_Path')as P_Staging_File_Path,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Dummy_File_Path')as P_Dummy_File_Path,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Archive_FilePath')as P_Archive_FilePath,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_File_Name')as P_File_Name,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Count_File_Name')as P_Count_File_Name,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Recon_File_Name')as P_Recon_File_Name,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Output_Path')as P_Output_Path,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_daily_metrics_by_ad_group_BlobFile_Not_Found')as P_daily_metrics_by_ad_group_BlobFile_Not_Found,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_SCT_SP_google_ads_adgroup_load')as P_SCT_SP_google_ads_adgroup_load,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_DF_Recon_google_ads_adgroup')as P_DF_Recon_google_ads_adgroup,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_daily_metrics_by_ad_group_MaxtryOutFileNotFound')as P_daily_metrics_by_ad_group_MaxtryOutFileNotFound,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_SortBy')as P_SortBy,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Checksum_DupKey')as P_Checksum_DupKey,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_SCT_check_error_count_adgroup_load')as P_SCT_check_error_count_adgroup_load,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_DF_google_ads_adgroup_edw_web_load_EDL')as P_DF_google_ads_adgroup_edw_web_load_EDL,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Email_Fail_Status')as P_Email_Fail_Status,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_DF_Recon_google_ads_adgroup_Fail')as P_DF_Recon_google_ads_adgroup_Fail,\r\n(select parameter_value from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and parameter_name='P_Purge_Days')as P_Purge_Days,\r\n(select distinct pipeline_name from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL')as P_Pipeline_Name,\r\n(select distinct dataflow_name from DATAOPS.METADATA_CONTROLS.SF_PARAMETERS where pipeline_name='PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL')as P_Dataflow_Name",
+						"exportSettings": {
+							"type": "SnowflakeExportCopyCommand"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_Generic_Snowflake",
+						"type": "DatasetReference",
+						"parameters": {
+							"database_name": {
+								"value": "@pipeline().globalParameters.Database_Name",
+								"type": "Expression"
+							},
+							"schema_name": {
+								"value": "@pipeline().globalParameters.Schema_Name",
+								"type": "Expression"
+							},
+							"table_name": {
+								"value": "@pipeline().globalParameters.Table_Name",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "LKP_Fetch_Param_From_TD_Load_Table",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SnowflakeSource",
+						"query": {
+							"value": "select BEGIN_DATE from DATAOPS.EDW_METADATA.TD_LOAD_PARAMETERS where TABLE_NAME = 'GOOGLE_ADS_ADGROUP_STG'",
+							"type": "Expression"
+						},
+						"exportSettings": {
+							"type": "SnowflakeExportCopyCommand"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_Generic_Snowflake",
+						"type": "DatasetReference",
+						"parameters": {
+							"database_name": {
+								"value": "@pipeline().globalParameters.Database_Name",
+								"type": "Expression"
+							},
+							"schema_name": {
+								"value": "@pipeline().globalParameters.Schema_Name",
+								"type": "Expression"
+							},
+							"table_name": {
+								"value": "@pipeline().globalParameters.Table_Name",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "FRE_All_Latest_Files_From_Gen2",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "IFC_Check_Compared_File_Count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Compare_and_Filter_out_Latest_Files').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "CPD_All_Latest_Files_From_Gen2_to_Blob_Storage",
+							"description": "CPD_All_Latest_Files_From_Gen2_to_Blob_Storage",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Dsmllake_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.EDL_Container",
+											"type": "Expression"
+										},
+										"Folder_Name": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Source_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"Compression_type": {
+											"value": "@if(endswith(item().Name, '.gz'), 'gzip','None')\n",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@replace(item().Name,'.gz','')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "IFC_Check_Compared_File_Count",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "UNT_Check_Files_Availability",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('FTR_Compare_and_Filter_out_Latest_Files').output.FilteredItemsCount,0)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "EPL_Send_Email_for_Already_File_archived",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PPL_Generic_Email_Framework",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Pipeline_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+										"type": "Expression"
+									},
+									"Activity_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_daily_metrics_by_ad_group_MaxtryOutFileNotFound",
+										"type": "Expression"
+									},
+									"Status": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Email_Fail_Status",
+										"type": "Expression"
+									},
+									"Start_time": {
+										"value": "@formatDateTime(convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+										"type": "Expression"
+									},
+									"Trigger_Type": {
+										"value": "@pipeline().TriggerType",
+										"type": "Expression"
+									},
+									"Email_Type": {
+										"value": "DYNAMIC",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "CPD_Copy_Dummy_Data_File",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "EPL_Send_Email_for_Already_File_archived",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Dummy_File_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_File_Name,'.txt')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_File_Name,'_',formatDateTime(variables('v_Sysdate'),'yyyyMMdd'),'.txt')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "CPD_Copy_Dummy_CountFile",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "EPL_Send_Email_for_Already_File_archived",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Dummy_File_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Count_File_Name, '.txt')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Count_File_Name,'_',formatDateTime(variables('v_Sysdate'),'yyyyMMdd'),'.txt')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "DF_recon_google_ads_adgroup",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "DF_google_ads_adgroup_edw_web_load_EDL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_recon_google_ads_adgroup",
+						"type": "DataFlowReference",
+						"parameters": {
+							"P_Output_File_Name": {
+								"value": "'@{concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Recon_File_Name,'_',formatDateTime(variables('v_Sysdate'),'yyyyMMddhhMMss'),'.csv')}'",
+								"type": "Expression"
+							},
+							"P_Count_File_path": {
+								"value": "'@{activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"SQingestionrecordcount": {
+								"database_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Database",
+									"type": "Expression"
+								},
+								"schema_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Schema",
+									"type": "Expression"
+								},
+								"table_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Target_Table_Ingestion",
+									"type": "Expression"
+								}
+							},
+							"SQedlcountfile": {
+								"container": {
+									"value": "@pipeline().globalParameters.staging_container",
+									"type": "Expression"
+								},
+								"directory": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path",
+									"type": "Expression"
+								},
+								"file_name": {
+									"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Count_File_Name,'*.txt')",
+									"type": "Expression"
+								},
+								"compression_type": "None",
+								"compression_level": "None",
+								"column_delimeter": ",",
+								"encoding": "UTF-8",
+								"escape_character": "\\",
+								"quote_character": "\"",
+								"first_row_as_header": false,
+								"null_value": "''"
+							},
+							"Reconfile": {
+								"Container": {
+									"value": "@pipeline().globalParameters.Output_Container",
+									"type": "Expression"
+								},
+								"File_Path": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Output_Path",
+									"type": "Expression"
+								},
+								"File_Name": {
+									"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Recon_File_Name,'_',formatDateTime(variables('v_Sysdate'),'yyyyMMddhhMMss'),'.csv')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"integrationRuntime": {
+						"referenceName": "ManagedVnetIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
+				}
+			},
+			{
+				"name": "DF_google_ads_adgroup_edw_web_load_EDL",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "FRE_All_Latest_Files_From_Gen2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_google_ads_adgroup_edw_web_load_EDL",
+						"type": "DataFlowReference",
+						"parameters": {
+							"P_SessionStartTime": {
+								"value": "'@{variables('v_Session_Start_Time')}'",
+								"type": "Expression"
+							},
+							"P_File_Path": {
+								"value": "'@{activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path}'",
+								"type": "Expression"
+							},
+							"P_FIle_Name": {
+								"value": "'@{activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_File_Name}'",
+								"type": "Expression"
+							},
+							"SF_Ingestion_Staging_Schema": {
+								"value": "'@{pipeline().globalParameters.SF_Ingestion_Staging_Schema}'",
+								"type": "Expression"
+							},
+							"P_SortBy": {
+								"value": "'@{activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_SortBy}'",
+								"type": "Expression"
+							},
+							"P_Checksum_DupKey": {
+								"value": "'@{activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Checksum_DupKey}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"SQedwgoogleadsadgrouppipeFF": {
+								"container": {
+									"value": "@pipeline().globalParameters.staging_container",
+									"type": "Expression"
+								},
+								"directory": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Staging_File_Path",
+									"type": "Expression"
+								},
+								"file_name": {
+									"value": "@concat(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_File_Name,'_2*.txt')",
+									"type": "Expression"
+								},
+								"compression_type": "None",
+								"compression_level": "None",
+								"column_delimeter": "|",
+								"encoding": "UTF-8",
+								"escape_character": "\\",
+								"quote_character": "\"",
+								"first_row_as_header": true,
+								"null_value": {
+									"value": "@coalesce(null,null)",
+									"type": "Expression"
+								}
+							},
+							"TGTgoogleadsadgroupstg": {
+								"database_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Database",
+									"type": "Expression"
+								},
+								"schema_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Schema",
+									"type": "Expression"
+								},
+								"table_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Table",
+									"type": "Expression"
+								}
+							},
+							"TGTingestionrecordcount": {
+								"database_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Database",
+									"type": "Expression"
+								},
+								"schema_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Stage_Schema",
+									"type": "Expression"
+								},
+								"table_name": {
+									"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Target_Table_Ingestion",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"integrationRuntime": {
+						"referenceName": "ManagedVnetIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "FRE_Copy_Files_from_ADLS_to_Archive_Folder",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "IFC_Check_To_Update_Script",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Compare_and_Filter_out_Latest_Files').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "CPD_Move_Files_to_Archive",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Dsmllake_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.EDL_Container",
+											"type": "Expression"
+										},
+										"Folder_Name": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Source_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"Compression_type": {
+											"value": "@if(endswith(item().Name, '.gz'), 'gzip','None')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.Archive_Container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Archive_FilePath",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "SCT_SP_google_ads_adgroup_load",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "DF_recon_google_ads_adgroup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "snowflake_sales_native",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Database": {
+							"value": "@pipeline().globalParameters.Database_Name",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "CALL DATAOPS.METADATA_CONTROLS.SP_ADF_CALLER(CALL_STMT=>'CALL sales.edw_stage.sp_google_ads_adgroup_load()');"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "IFC_Check_File_Not_Found_at_Source_Loaction",
+				"description": "If File not found at source location",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "UNT_Check_Files_Availability",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('FTR_Filter_Latest_Source_Files').output.FilteredItemsCount,0)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "EPL_Email_on_Blob_File_Not_Found",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PPL_Generic_Email_Framework",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Pipeline_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+										"type": "Expression"
+									},
+									"Activity_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_daily_metrics_by_ad_group_BlobFile_Not_Found",
+										"type": "Expression"
+									},
+									"Status": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Email_Fail_Status",
+										"type": "Expression"
+									},
+									"Start_time": {
+										"value": "@formatDateTime(convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+										"type": "Expression"
+									},
+									"Email_Type": {
+										"value": "DYNAMIC",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "IFC_Recon_Status_Failed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "DF_recon_google_ads_adgroup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('DF_recon_google_ads_adgroup').output.runStatus.output.Reconstatus.value[0].RECON_STATUS, 'FAILURE')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Exec_Email_on_reconcount_Mismatch",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PPL_Generic_Email_Framework",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Pipeline_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+										"type": "Expression"
+									},
+									"Activity_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_DF_Recon_google_ads_adgroup",
+										"type": "Expression"
+									},
+									"Status": {
+										"value": "Failed",
+										"type": "Expression"
+									},
+									"Email_Type": {
+										"value": "STATIC",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "EPL_Email_on_Fail_SCT_SP_google_ads_adgroup_load",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "SCT_SP_google_ads_adgroup_load",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_Generic_Email_Framework",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Pipeline_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+							"type": "Expression"
+						},
+						"Activity_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_SCT_SP_google_ads_adgroup_load",
+							"type": "Expression"
+						},
+						"Status": {
+							"value": "@activity('SCT_SP_google_ads_adgroup_load').status",
+							"type": "Expression"
+						},
+						"Email_Type": {
+							"value": "STATIC",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "V_Session_Start_Time",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_Session_Start_Time",
+					"value": {
+						"value": "@formatDateTime(convertFromUtc(utcNow(), 'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "UNT_Check_Files_Availability",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "V_Sysdate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LKP_Fetch_Param_From_SF_Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LKP_Fetch_Param_From_TD_Load_Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "V_Session_Start_Time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('v_File_Found'),'True')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "GMD_Get_All_Source_Files",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "DS_Generic_Dsmllake_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.EDL_Container",
+											"type": "Expression"
+										},
+										"Folder_Name": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Source_Path",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "*",
+											"type": "Expression"
+										},
+										"Compression_type": "None"
+									}
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "FTR_Filter_Latest_Source_Files",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "GMD_Get_All_Source_Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('GMD_Get_All_Source_Files').output.childItems",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@if(\nand(equals(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Begin_Date_Override, ''),\n\nequals(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_End_Date_Override, '')),\n\nand(and(and(\n\n or(endswith(item().name, '.txt.gz'), endswith(item().name, '.txt')),\n\n\n greater(substring(replace(replace(item().name, '.txt.gz', ''), '.txt', ''),\n\n sub(length(replace(replace(item().name, '.txt.gz', ''), '.txt', '')), 14), 8),formatDateTime(activity('LKP_Fetch_Param_From_TD_Load_Table').output.firstRow.BEGIN_DATE,'yyyyMMdd'))),\n\n\n lessOrEquals(substring(replace(replace(item().name, '.txt.gz', ''), '.txt', ''),\n\n sub(length(replace(replace(item().name, '.txt.gz', ''), '.txt', '')), 14), 8),formatDateTime(variables('v_Sysdate'),'yyyyMMdd')))\n\n ,startswith(item().name, 'daily_metrics_by_ad_group')\n\n),\nand(and(and(\n\n or(endswith(item().name, '.txt.gz'), endswith(item().name, '.txt')),\n\n\n greater(substring(replace(replace(item().name, '.txt.gz', ''), '.txt', ''),\n\n sub(length(replace(replace(item().name, '.txt.gz', ''), '.txt', '')), 14), 8),formatDateTime(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Begin_Date_Override,'yyyyMMdd'))),\n\n\n lessOrEquals(substring(replace(replace(item().name, '.txt.gz', ''), '.txt', ''),\n\n sub(length(replace(replace(item().name, '.txt.gz', ''), '.txt', '')), 14), 8),formatDateTime(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_End_Date_Override,'yyyyMMdd')))\n\n ,startswith(item().name, 'daily_metrics_by_ad_group')\n\n)\n\n)",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "FTR_Compare_and_Filter_out_Latest_Files",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "FTR_Filter_Latest_Source_Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "GMD_Get_All_Archive_Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('FTR_Filter_Latest_Source_Files').output.value",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@not(contains(activity('GMD_Get_All_Archive_Files').output.childItems, item()))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "GMD_Get_All_Archive_Files",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "DS_Generic_edwlanding_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": {
+											"value": "@pipeline().globalParameters.Archive_Container",
+											"type": "Expression"
+										},
+										"File_Path": {
+											"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Archive_FilePath",
+											"type": "Expression"
+										},
+										"File_Name": {
+											"value": "*",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "IFC_Check_compared_Count",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "FTR_Compare_and_Filter_out_Latest_Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('FTR_Compare_and_Filter_out_Latest_Files').output.FilteredItemsCount,0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Wait_If_File_Not_Found",
+										"description": "Wait_If_File_Not_Found_For_10sec",
+										"type": "Wait",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 60
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "V_File_Found",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_File_Found",
+											"value": {
+												"value": "True",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						}
+					],
+					"timeout": "0.00:05:00"
+				}
+			},
+			{
+				"name": "IFC_Check_To_Update_Script",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "IFC_Check_Error_Count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(equals(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Begin_Date_Override, ''),\nequals(activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_End_Date_Override, ''))",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "SCT_update_last_run_date_SF_Parameters",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "SCT_update_last_run_date_TD_load_override",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "snowflake_sales_native",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"Database": {
+										"value": "@pipeline().globalParameters.Database_Name",
+										"type": "Expression"
+									}
+								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "update DATAOPS.METADATA_CONTROLS.SF_PARAMETERS\nSET parameter_value = ''\nwhere pipeline_name = 'PPL_google_ads_edw_web_load_EDL' and dataflow_name='DF_google_ads_adgroup_edw_web_load_EDL' and (parameter_name = 'P_End_Date_Override' or  parameter_name = 'P_Begin_Date_Override')",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "SCT_update_last_run_date_TD_load_override",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "snowflake_sales_native",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"Database": {
+										"value": "@pipeline().globalParameters.Database_Name",
+										"type": "Expression"
+									}
+								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "update DATAOPS.EDW_METADATA.TD_LOAD_PARAMETERS\nset BEGIN_DATE = '@{variables('v_Session_Start_Time')}' , LST_UPD_TS = '@{variables('v_Session_Start_Time')}'\nwhere TABLE_NAME='GOOGLE_ADS_ADGROUP_STG'",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "SCT_update_last_run_date_TD_load",
+							"description": "SCT_update_last_run_date_TD_load",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "snowflake_sales_native",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"Database": {
+										"value": "@pipeline().globalParameters.Database_Name",
+										"type": "Expression"
+									}
+								}
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "update DATAOPS.EDW_METADATA.TD_LOAD_PARAMETERS\nset BEGIN_DATE = '@{variables('v_Session_Start_Time')}' , LST_UPD_TS = '@{variables('v_Session_Start_Time')}'\nwhere TABLE_NAME='GOOGLE_ADS_ADGROUP_STG'",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "SCT_check_error_count",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCT_SP_google_ads_adgroup_load",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "snowflake_sales_native",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"Database": {
+							"value": "@pipeline().globalParameters.Database_Name",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "SELECT count(*) as Error_Count FROM sales.edw_stage.Activity_Log_View WHERE activity_name = 'sp_google_ads_adgroup_load' and error_count > 0 and dw_insert_ts >= (select max(dw_insert_ts) from sales.edw_stage.Activity_Log_View WHERE activity_name = 'sp_google_ads_adgroup_load' and step_id = 0)"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "IFC_Check_Error_Count",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "SCT_check_error_count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('SCT_check_error_count').output.resultSets[0].rows[0].Error_Count, 0)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "EPL_Email_Check_Errror_Count",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PPL_Generic_Email_Framework",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Pipeline_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+										"type": "Expression"
+									},
+									"Activity_Name": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_SCT_check_error_count_adgroup_load",
+										"type": "Expression"
+									},
+									"Status": {
+										"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Email_Fail_Status",
+										"type": "Expression"
+									},
+									"Email_Type": {
+										"value": "STATIC",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Fail_if_error_count_greaterthan_0",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "EPL_Email_Check_Errror_Count",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "Error Count is greater than 0.",
+								"errorCode": "1"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "EPL_Email_onFail_DF_google_ads_adgroup_edw_web_load_EDL",
+				"description": "EPL_Email_onFail_DF_google_ads_adgroup_edw_web_load_EDL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DF_google_ads_adgroup_edw_web_load_EDL",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_Generic_Email_Framework",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Pipeline_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+							"type": "Expression"
+						},
+						"Activity_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_DF_google_ads_adgroup_edw_web_load_EDL",
+							"type": "Expression"
+						},
+						"Status": {
+							"value": "@activity('DF_google_ads_adgroup_edw_web_load_EDL').status",
+							"type": "Expression"
+						},
+						"Start_time": {
+							"value": "@formatDateTime(convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+							"type": "Expression"
+						},
+						"Trigger_Type": {
+							"value": "@pipeline().TriggerType",
+							"type": "Expression"
+						},
+						"Email_Type": {
+							"value": "DYNAMIC",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "EPL_Email_on_Fail_DF_recon_google_ads_adgroup",
+				"description": "EPL_Email_on_Fail_DF_recon_google_ads_adgroup",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DF_recon_google_ads_adgroup",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_Generic_Email_Framework",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Pipeline_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_Pipeline_Name",
+							"type": "Expression"
+						},
+						"Activity_Name": {
+							"value": "@activity('LKP_Fetch_Param_From_SF_Table').output.firstRow.P_DF_Recon_google_ads_adgroup_Fail",
+							"type": "Expression"
+						},
+						"Status": {
+							"value": "@activity('DF_recon_google_ads_adgroup').status",
+							"type": "Expression"
+						},
+						"Start_time": {
+							"value": "@formatDateTime(convertFromUtc(pipeline().TriggerTime, 'Eastern Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+							"type": "Expression"
+						},
+						"Trigger_Type": {
+							"value": "@pipeline().TriggerType",
+							"type": "Expression"
+						},
+						"Email_Type": {
+							"value": "DYNAMIC",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "EPL_PPL_google_ads_adgroup_edw_web_load_EDL_Purging",
+				"description": "PPL_google_ads_adgroup_edw_web_load_EDL_Purging",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FRE_Copy_Files_from_ADLS_to_Archive_Folder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_google_ads_adgroup_edw_web_load_EDL_Purging",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"variables": {
+			"v_Sysdate": {
+				"type": "String"
+			},
+			"v_File_Found": {
+				"type": "String"
+			},
+			"v_Session_Start_Time": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "SALES/EDW_Web/PPL_google_ads_edw_web_load_EDL"
+		},
+		"annotations": []
+	}
+}

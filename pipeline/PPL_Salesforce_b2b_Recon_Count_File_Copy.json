@@ -1,0 +1,2073 @@
+{
+	"name": "PPL_Salesforce_b2b_Recon_Count_File_Copy",
+	"properties": {
+		"activities": [
+			{
+				"name": "GMT_Count_emailmessage",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_emailmessage",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_emailmessage,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_Count_Files_emailmessage",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_emailmessage",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_emailmessage",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_DealerTeamMember",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_DealerTeamMember",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_DealerTeamMember,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_DealerTeamMember",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files1').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_DealerTeamMember",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_DealerTeamMember",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_Event",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_event",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_event,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_Event",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files2').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_Event",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_event",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_Contact",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_contact",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_contact,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_Contact",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files3').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_Contact",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_contact",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_DealerRepR",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_DealerRepR",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_DealerRepRelationship,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_DealerRepR",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files4",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files4').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_DealerRepR",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_DealerRepR",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_Task",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_task",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_task,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_Task",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files5",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files5').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_Task",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_task",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_account",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_account",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_account,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_account",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files6",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files6').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_account",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_account",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_user",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_user",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_user,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_user",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files7",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files7').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_user",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_user",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_EmailTemplate",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_EmailTemplate",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_EmailTemplate,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_EmailTemplate",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files8",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files8').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_EmailTemplate",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_EmailTemplate",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "GMT_Count_Files_Location",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.Staging_Container",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@pipeline().parameters.SourcePath_Location",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@concat(pipeline().parameters.FileName_Location,'_','count_*.txt')",
+								"type": "Expression"
+							},
+							"compression_type": "None",
+							"compression_level": "None",
+							"column_delimeter": ",",
+							"encoding": "UTF-8",
+							"escape_character": "\\",
+							"quote_character": "\"",
+							"first_row_as_header": true,
+							"null_value": "\""
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FRE_Location",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FTR_Count_Files9",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FTR_Count_Files9').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CPD_Location",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.SourcePath_Location",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().globalParameters.staging_container",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@pipeline().parameters.TargetPath_AllCountFiles",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().Name",
+											"type": "Expression"
+										},
+										"compression_type": "None",
+										"compression_level": "None",
+										"column_delimeter": ",",
+										"encoding": "UTF-8",
+										"escape_character": "\\",
+										"quote_character": "\"",
+										"first_row_as_header": false,
+										"null_value": "\""
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "FTR_Count_Files",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_emailmessage",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_emailmessage').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files1",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_DealerTeamMember",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_DealerTeamMember').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files2",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_Event",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_Event').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files3",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_Contact",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_Contact').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files4",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_DealerRepR",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_DealerRepR').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files5",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_Task",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_Task').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files6",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_account",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_account').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files7",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_user",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_user').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files8",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_EmailTemplate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_EmailTemplate').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FTR_Count_Files9",
+				"description": "This is used to ignore dummy files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GMT_Count_Files_Location",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GMT_Count_Files_Location').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@contains(item().Name, '.txt')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Staging_Container": {
+				"type": "string"
+			},
+			"SourcePath_contact": {
+				"type": "string"
+			},
+			"SourcePath_DealerRepR": {
+				"type": "string"
+			},
+			"SourcePath_event": {
+				"type": "string"
+			},
+			"SourcePath_task": {
+				"type": "string"
+			},
+			"SourcePath_account": {
+				"type": "string"
+			},
+			"SourcePath_DealerTeamMember": {
+				"type": "string"
+			},
+			"SourcePath_user": {
+				"type": "string"
+			},
+			"TargetPath_AllCountFiles": {
+				"type": "string"
+			},
+			"FileName_contact": {
+				"type": "string"
+			},
+			"FileName_DealerRepRelationship": {
+				"type": "string"
+			},
+			"FileName_event": {
+				"type": "string"
+			},
+			"FileName_emailmessage": {
+				"type": "string"
+			},
+			"FileName_task": {
+				"type": "string"
+			},
+			"FileName_account": {
+				"type": "string"
+			},
+			"FileName_DealerTeamMember": {
+				"type": "string"
+			},
+			"FileName_user": {
+				"type": "string"
+			},
+			"SourcePath_emailmessage": {
+				"type": "string"
+			},
+			"SourcePath_EmailTemplate": {
+				"type": "string"
+			},
+			"SourcePath_Location": {
+				"type": "string"
+			},
+			"FileName_EmailTemplate": {
+				"type": "string"
+			},
+			"FileName_Location": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "SALES/EDW_SalesForce/PPL_Salesforce_B2b_Recon"
+		},
+		"annotations": [
+			"PPL_Salesforce_b2b_Recon_Count_File_Copy",
+			"EDW_SalesForce",
+			"SALES"
+		]
+	}
+}

@@ -1,0 +1,42 @@
+{
+	"name": "df_edocs_Order_cust_forms_edw_sales3_copy_load",
+	"properties": {
+		"folder": {
+			"name": "EDW_SALES"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "SQedocsOrdercustforms"
+				},
+				{
+					"name": "LKPTRANSLKPTABLE"
+				}
+			],
+			"sinks": [
+				{
+					"name": "TGTedocsOrdercustforms1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "EXPTRANS"
+				},
+				{
+					"name": "EXPTRANSSelect"
+				},
+				{
+					"name": "LKPTRANS"
+				},
+				{
+					"name": "EXPTRANS1"
+				},
+				{
+					"name": "FILTRANS"
+				}
+			],
+			"script": "parameters{\n\tPMWorkflowRunId as string,\n\tPMWorkflowName as string\n}\nsource(output(\n\t\torder_Number as string,\n\t\tstock_Number as string,\n\t\tedocs_Transaction_Id as string,\n\t\tstore_Number as string,\n\t\tform_Id as string,\n\t\tversion_Id as string,\n\t\tdms_Image_Id as string,\n\t\timage_File_Name as string,\n\t\tcorp_Copy_Dt as string,\n\t\tdescription as string,\n\t\tdms_Detail_Id as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SQedocsOrdercustforms\nsource(output(\n\t\torder_Number as integer,\n\t\tstock_Number as integer,\n\t\tedocs_Transaction_Id as integer,\n\t\tstore_Number as integer,\n\t\tform_Id as integer,\n\t\tversion_Id as integer,\n\t\tdms_Image_Id as integer,\n\t\timage_File_Name as string,\n\t\tcorp_Copy_Dt as timestamp 'dd-MM-yyyy',\n\t\tdescription as string,\n\t\tdms_Detail_Id as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> LKPTRANSLKPTABLE\nSQedocsOrdercustforms derive(o_order_Number = toInteger(order_Number),\n\t\to_stock_Number = toInteger(stock_Number),\n\t\to_edocs_Transaction_Id = toInteger(edocs_Transaction_Id),\n\t\to_store_Number = toInteger(store_Number),\n\t\to_form_Id = toInteger(form_Id),\n\t\to_version_Id = toInteger(version_Id),\n\t\to_dms_Image_Id = toInteger(dms_Image_Id),\n\t\to_image_File_Name = image_File_Name,\n\t\to_corp_Copy_Dt = toDate(corp_Copy_Dt,'YYYY-MM-DD'),\n\t\to_description = description,\n\t\to_dms_Detail_Id = toInteger(dms_Detail_Id),\n\t\tlst_upd_ts = currentTimestamp()) ~> EXPTRANS\nEXPTRANS select(mapColumn(\n\t\to_order_Number,\n\t\to_stock_Number,\n\t\to_edocs_Transaction_Id,\n\t\to_store_Number,\n\t\to_form_Id,\n\t\to_version_Id,\n\t\to_dms_Image_Id,\n\t\to_image_File_Name,\n\t\to_corp_Copy_Dt,\n\t\to_description,\n\t\to_dms_Detail_Id,\n\t\tlst_upd_ts\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> EXPTRANSSelect\nEXPTRANSSelect, LKPTRANSLKPTABLE lookup(o_order_Number == order_Number\n\t&& o_stock_Number == stock_Number\n\t&& o_form_Id == form_Id\n\t&& o_edocs_Transaction_Id == edocs_Transaction_Id,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LKPTRANS\nLKPTRANS derive(order_Number = order_Number,\n\t\to_order_Number = o_order_Number,\n\t\to_stock_Number = o_stock_Number,\n\t\to_edocs_Transaction_Id = o_edocs_Transaction_Id,\n\t\to_store_Number = o_store_Number,\n\t\to_form_Id = o_form_Id,\n\t\to_version_Id = o_version_Id,\n\t\to_dms_Image_Id = o_dms_Image_Id,\n\t\to_image_File_Name = o_image_File_Name,\n\t\to_corp_Copy_Dt = o_corp_Copy_Dt,\n\t\to_description = o_description,\n\t\to_dms_Detail_Id = o_dms_Detail_Id,\n\t\tlst_upd_ts = lst_upd_ts,\n\t\tmd5_src = md5(toString(o_order_Number) + toString(o_stock_Number) + toString(o_edocs_Transaction_Id) + toString(o_store_Number) + toString(o_form_Id) + toString(o_version_Id) + toString(o_dms_Image_Id) + toString(o_image_File_Name) + toString(o_corp_Copy_Dt) + o_description + toString(o_dms_Detail_Id)),\n\t\tmd5_lkp = md5(toString(order_Number) + toString(stock_Number) + toString(edocs_Transaction_Id) + toString(store_Number) + toString(form_Id) + toString(version_Id) + toString(dms_Image_Id) + toString(image_File_Name) + toString(corp_Copy_Dt) + description + toString(dms_Detail_Id)),\n\t\tstock_Number = stock_Number,\n\t\tedocs_Transaction_Id = edocs_Transaction_Id,\n\t\tstore_Number = store_Number,\n\t\tform_Id = form_Id,\n\t\tversion_Id = version_Id,\n\t\tdms_Image_Id = dms_Image_Id,\n\t\timage_File_Name = image_File_Name,\n\t\tcorp_Copy_Dt = corp_Copy_Dt,\n\t\tdescription = description,\n\t\tdms_Detail_Id = dms_Detail_Id) ~> EXPTRANS1\nEXPTRANS1 filter((md5_src != toString(md5_lkp)) || (isNull(order_Number))) ~> FILTRANS\nFILTRANS sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tsaveOrder: 1,\n\tmapColumn(\n\t\tstore_Number = o_store_Number,\n\t\tdescription = o_description,\n\t\torder_Number = o_order_Number,\n\t\tstock_Number = o_stock_Number,\n\t\tversion_Id = o_version_Id,\n\t\timage_File_Name = o_image_File_Name,\n\t\tedocs_Transaction_Id = o_edocs_Transaction_Id,\n\t\tdms_Detail_Id = o_dms_Detail_Id,\n\t\tdms_Image_Id = o_dms_Image_Id,\n\t\tcorp_Copy_Dt = o_corp_Copy_Dt,\n\t\tlst_upd_ts,\n\t\tform_Id = o_form_Id\n\t),\n\tformat: 'table') ~> TGTedocsOrdercustforms1"
+		}
+	}
+}

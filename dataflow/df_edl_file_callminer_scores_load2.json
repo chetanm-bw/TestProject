@@ -1,0 +1,30 @@
+{
+	"name": "df_edl_file_callminer_scores_load2",
+	"properties": {
+		"folder": {
+			"name": "Carmax_Project"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "SQCallMinerPay"
+				}
+			],
+			"sinks": [
+				{
+					"name": "TGTCallMinerPay1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "callminerpayexpression"
+				},
+				{
+					"name": "ScoreFilter"
+				}
+			],
+			"script": "parameters{\n\tPMWorkflowRunId as string,\n\tPMWorkflowName as string\n}\nsource(output(\n\t\tEurekaID as string,\n\t\tAgentNumber as string,\n\t\tClientCaptureDate as string,\n\t\tRecorderID as string,\n\t\tADPEmployeeKey as string,\n\t\tScoreName as string,\n\t\tHits as string,\n\t\tScoreid as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SQCallMinerPay\nSQCallMinerPay derive(ScoreName = ScoreName,\n\t\tHits = Hits,\n\t\tlst_upd_ts = currentTimestamp(),\n\t\tScoreid = Scoreid,\n\t\tEurekaID = EurekaID,\n\t\tAgentNumber = AgentNumber,\n\t\to_ClientCaptureDate = iif(isNull(ClientCaptureDate), toTimestamp(null()), toTimestamp(toString(toDate(substring(toString(ClientCaptureDate), toInteger(1), 10) + ' ' + substring(toString(ClientCaptureDate), toInteger(12), 8),'YYYY-MM-DD HH24:MI:SS')))),\n\t\tRecorderID = RecorderID,\n\t\tADPEmployeeKey = ADPEmployeeKey) ~> callminerpayexpression\ncallminerpayexpression filter(True) ~> ScoreFilter\nScoreFilter sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tsaveOrder: 1,\n\tmapColumn(\n\t\tagentnumber = AgentNumber,\n\t\teurekaid = EurekaID,\n\t\tscorename = ScoreName,\n\t\tadpemployeekey = ADPEmployeeKey,\n\t\tclientcapturedate = o_ClientCaptureDate,\n\t\tcontact_id = RecorderID,\n\t\tscorevalue = Hits,\n\t\tlst_upd_ts,\n\t\tscoreid = Scoreid\n\t),\n\tformat: 'table') ~> TGTCallMinerPay1"
+		}
+	}
+}
