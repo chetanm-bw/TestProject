@@ -1,0 +1,80 @@
+{
+	"name": "DF_websitestagedb_se_factsheet_log_edw_stage_se_factsheet_log_stage_load",
+	"properties": {
+		"folder": {
+			"name": "SALES/EDW_Web/PPL_websitestagedb_edw_web_load_3"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference"
+					},
+					"name": "SQfactsheetlog"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference"
+					},
+					"name": "ErrorRecords"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_Generic_Snowflake",
+						"type": "DatasetReference"
+					},
+					"name": "TGTkmxcomfactsheetlogstage"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_Generic_Blob_edwsaleslanding_DelimitedText",
+						"type": "DatasetReference"
+					},
+					"name": "DuplicateCapture"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flowlet1",
+					"flowlet": {
+						"referenceName": "FLW_Generic_Duplicate_Capture",
+						"type": "DataFlowReference",
+						"parameters": {
+							"SortBy": "$Sort_Key",
+							"Checksum_DupKeyColsExpr": "$Checksum_Key"
+						}
+					}
+				},
+				{
+					"name": "EXPsefactsheetlog"
+				},
+				{
+					"name": "Assert"
+				},
+				{
+					"name": "TGTkmxcomfactsheetlogstageAssertConditionalSplitComponent"
+				},
+				{
+					"name": "NULLIFs"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "MapDrifted1",
+					"description": "Creates an explicit mapping for each drifted column"
+				},
+				{
+					"name": "MapDrifted2",
+					"description": "Creates an explicit mapping for each drifted column"
+				}
+			],
+			"script": "parameters{\n\tSF_Ingestion_Staging_Schema as string,\n\tSessionStartTime as string,\n\tErrorFile as string,\n\tSort_Key as string,\n\tChecksum_Key as string,\n\tDuplicateCapture as string\n}\nsource(output(\n\t\tsearch_id as string,\n\t\tvisitor_id as string,\n\t\tsession_id as string,\n\t\tstock_num as integer,\n\t\tis_transferable as string,\n\t\tis_exact_match as string,\n\t\tvehicle_loc_num as integer,\n\t\tvehicle_market_num as integer,\n\t\tad_code as string,\n\t\tmanager_special_id as integer,\n\t\tweb_site as string,\n\t\tinsert_ts as timestamp,\n\t\tip_address as string,\n\t\tphoto_count as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tmultiLineRow: true) ~> SQfactsheetlog\nselect1 compose(mapParameter(\n\t\tSortBy = $Sort_Key,\n\t\tChecksum_DupKeyColsExpr = $Checksum_Key\n\t),\n\tcomposition: 'FLW_Generic_Duplicate_Capture') ~> flowlet1@(DuplicateRecords, UniqueData)\nSQfactsheetlog derive(search_id = rtrim(substring(toString(search_id), toInteger(1), 50)),\n\t\tvisitor_id = rtrim(substring(toString(visitor_id), toInteger(1), 50)),\n\t\tsession_id = rtrim(substring(toString(session_id), toInteger(1), 50)),\n\t\tstep_id = toInteger(0),\n\t\tis_transferable = rtrim(substring(toString(is_transferable), toInteger(1), 1)),\n\t\tis_exact_match = rtrim(substring(toString(is_exact_match), toInteger(1), 1)),\n\t\tad_code = rtrim(substring(toString(ad_code), toInteger(1), 50)),\n\t\tweb_site = rtrim(substring(toString(web_site), toInteger(1), 1)),\n\t\tip_address = rtrim(substring(toString(ip_address), toInteger(1), 15)),\n\t\tO_INSERT_TS = toTimestamp($SessionStartTime),\n\t\tLST_UPD_TS = toTimestamp($SessionStartTime),\n\t\tSS_INSERT_TS = insert_ts,\n\t\tSS_INSERT_DT = toDate(toString(insert_ts, 'yyyy-mm-dd'),'yyyy-mm-dd')) ~> EXPsefactsheetlog\nNULLIFs assert(expectTrue(!(isNull(INSERT_TS) || isNull(LST_UPD_TS)), false, 'rule1nullcheck')) ~> Assert\nAssert split(isError(),\n\tdisjoint: false) ~> TGTkmxcomfactsheetlogstageAssertConditionalSplitComponent@(ErrorRows, CleanRows)\nMapDrifted2 derive(search_id = iif(search_id == toString(''),toString(null()), search_id),\n\t\tvisitor_id = iif(visitor_id == toString(''),toString(null()), visitor_id),\n\t\tsession_id = iif(session_id == toString(''),toString(null()), session_id),\n\t\tis_transferable = iif(is_transferable == toString(''),toString(null()), is_transferable),\n\t\tis_exact_match = iif(is_exact_match == toString(''),toString(null()), is_exact_match),\n\t\tad_code = iif(ad_code == toString(''),toString(null()), ad_code),\n\t\tip_address = iif(ip_address == toString(''),toString(null()), ip_address)) ~> NULLIFs\nEXPsefactsheetlog select(mapColumn(\n\t\tsearch_id,\n\t\tvisitor_id,\n\t\tsession_id,\n\t\tstock_num,\n\t\tstep_id,\n\t\tis_transferable,\n\t\tis_exact_match,\n\t\tvehicle_loc_num,\n\t\tvehicle_market_num,\n\t\tad_code,\n\t\tmanager_special_id,\n\t\tweb_site,\n\t\tip_address,\n\t\tphoto_count,\n\t\tINSERT_TS = O_INSERT_TS,\n\t\tLST_UPD_TS,\n\t\tSS_INSERT_TS,\n\t\tSS_INSERT_DT\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nflowlet1@DuplicateRecords derive(stock_num = toInteger(byName('stock_num')),\n\t\tad_code = toString(byName('ad_code')),\n\t\tstep_id = toInteger(byName('step_id')),\n\t\tsession_id = toString(byName('session_id')),\n\t\tSS_INSERT_TS = toTimestamp(byName('SS_INSERT_TS')),\n\t\tweb_site = toString(byName('web_site')),\n\t\tvehicle_loc_num = toInteger(byName('vehicle_loc_num')),\n\t\tvisitor_id = toString(byName('visitor_id')),\n\t\tINSERT_TS = toTimestamp(byName('INSERT_TS')),\n\t\tis_exact_match = toString(byName('is_exact_match')),\n\t\tphoto_count = toInteger(byName('photo_count')),\n\t\tsearch_id = toString(byName('search_id')),\n\t\tmanager_special_id = toInteger(byName('manager_special_id')),\n\t\tis_transferable = toString(byName('is_transferable')),\n\t\tLST_UPD_TS = toTimestamp(byName('LST_UPD_TS')),\n\t\tip_address = toString(byName('ip_address')),\n\t\tvehicle_market_num = toInteger(byName('vehicle_market_num')),\n\t\tSS_INSERT_DT = toDate(byName('SS_INSERT_DT'))) ~> MapDrifted1\nflowlet1@UniqueData derive(stock_num = toInteger(byName('stock_num')),\n\t\tad_code = toString(byName('ad_code')),\n\t\tstep_id = toInteger(byName('step_id')),\n\t\tsession_id = toString(byName('session_id')),\n\t\tSS_INSERT_TS = toTimestamp(byName('SS_INSERT_TS')),\n\t\tweb_site = toString(byName('web_site')),\n\t\tvehicle_loc_num = toInteger(byName('vehicle_loc_num')),\n\t\tvisitor_id = toString(byName('visitor_id')),\n\t\tINSERT_TS = toTimestamp(byName('INSERT_TS')),\n\t\tis_exact_match = toString(byName('is_exact_match')),\n\t\tphoto_count = toInteger(byName('photo_count')),\n\t\tsearch_id = toString(byName('search_id')),\n\t\tmanager_special_id = toInteger(byName('manager_special_id')),\n\t\tis_transferable = toString(byName('is_transferable')),\n\t\tLST_UPD_TS = toTimestamp(byName('LST_UPD_TS')),\n\t\tip_address = toString(byName('ip_address')),\n\t\tvehicle_market_num = toInteger(byName('vehicle_market_num')),\n\t\tSS_INSERT_DT = toDate(byName('SS_INSERT_DT'))) ~> MapDrifted2\nTGTkmxcomfactsheetlogstageAssertConditionalSplitComponent@ErrorRows sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[($ErrorFile)],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2,\n\tpartitionBy('hash', 1)) ~> ErrorRecords\nTGTkmxcomfactsheetlogstageAssertConditionalSplitComponent@CleanRows sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tstagingSchemaName: ($SF_Ingestion_Staging_Schema),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tsaveOrder: 1,\n\tstageInsert: true) ~> TGTkmxcomfactsheetlogstage\nMapDrifted1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[($DuplicateCapture)],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 3,\n\tpartitionBy('hash', 1)) ~> DuplicateCapture"
+		}
+	}
+}
