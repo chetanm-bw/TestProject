@@ -1,0 +1,170 @@
+
+# DevOps Pipeline for deploying Data Factory 
+# This pipeline includes parameters for deploying to Dev, QA, Prod in both East and West regions
+# By default all environments and regions are set to false
+# This pipeline has all triggers turned off
+
+parameters:
+- name: Application
+  displayName: Application?
+  type: string
+  default: EDW_1
+  values:
+    - sales
+    - EDW_1
+    - Generic
+    - PPL_Test
+- name: DependantApplication
+  displayName: Dependant Application?
+  type: object
+  default: ''
+
+- name: DeployToQAEast
+  displayName: Deploy To QA East?
+  type: boolean
+  default: false
+
+- name: PublishArtificats
+  displayName: PublishArtificats?
+  type: boolean
+  default: false
+#- name: Application
+#  displayName: Application?
+#  type: string
+#  default: '*'
+#  values:
+#    - EDW_1
+#    - EDW_2
+#    - EDW_3 
+
+
+
+trigger: none
+
+
+variables:
+    - group: Platform
+    - name: resourceGroupName
+      value: CarmaxADF
+    - name: dataFactoryName
+      value: DataOpsQA-ADF1
+    - name: region
+      value: eastus
+    - name:  USERDOMAIN
+      value: dev
+        
+
+stages:
+- stage: ValidateSelectiveDeployment
+  displayName: ValidateSelectiveDeployment
+
+  jobs:
+    - job: ValidateSelectiveDeployment
+      displayName: ValidateSelectiveDeployment
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your PowerShell commands here.
+            
+            Write-Host "Hello World"
+            #Dir
+            #cd $(Pipeline.Workspace)/s/DataOpsDev-ADF1/ 
+            #Dir
+            Install-Module Az.DataFactory -MinimumVersion "1.10.0" -Force
+            Install-Module -Name "azure.datafactory.tools" -Force
+            Import-Module -Name "azure.datafactory.tools" -Force
+            Write-Host "ValidateSelectiveDeployment"
+            $adf = Import-AdfFromFolder -RootFolder $(Pipeline.Workspace)/s/DataOpsDev-ADF1/   -FactoryName DataOpsDev-ADF1
+            $objectsToDeploy = $adf.GetObjectsByFolderName('Customer_EDW_1/EDW1')
+            Write-Host "objectsToDeploy: $objectsToDeploy"
+            Write-Host "objectsToDeploy" $objectsToDeploy
+            #$list1 = $adf.GetObjectsByFolderName('Copy')
+
+            $opt = New-AdfPublishOption
+            $opt.Includes += $objectsToDeploy
+            Publish-AdfV2FromJson -RootFolder $(Pipeline.Workspace)/s/DataOpsDev-ADF1/ -ResourceGroupName CarmaxADF -DataFactoryName DataOpsQA-ADF1 -Location east -Option $opt -DryRun
+
+- stage: Publish
+  displayName: Publish
+  condition: ${{parameters.PublishArtificats}}
+
+  jobs:
+    - job: PublishJob     
+      displayName: Copy and Publish Artifacts
+      pool:
+        vmImage: 'windows-latest'
+
+      steps:
+        - task: PowerShell@2
+          inputs:
+            targetType: 'inline'
+            script: |
+
+              $Application = '${{parameters.DependantApplication}}'
+              if (![string]::IsNullOrEmpty($Application))
+              {
+              $FilterArray = $Application.Replace(',', "`n").Replace("`r`n", "`n").Split("`n")
+              Write-Host "Appllication: $FilterArray"
+              $FilterArray | Out-File $(Build.ArtifactStagingDirectory)\Application.txt
+              }             
+              Add-Content -Path $(Build.ArtifactStagingDirectory)\Application.txt -value '${{parameters.Application}}'
+              Get-Content $(Build.ArtifactStagingDirectory)\Application.txt
+              
+              $files = @(Get-ChildItem "$(System.DefaultWorkingDirectory)/DataOpsDev-ADF1/pipeline")
+              foreach ($file in $files) 
+              {
+                    $file_content=(Get-Content "$(System.DefaultWorkingDirectory)/DataOpsDev-ADF1/pipeline/$file" | ConvertFrom-Json).properties.folder.name
+                    Write-Host "App_folder: $file_content"
+                    if (![string]::IsNullOrEmpty($file_content))
+                    {
+                    Add-Content -Path $(Build.ArtifactStagingDirectory)\pipelinefolders.txt -value $file_content.Split('/')[-1]
+                    }
+              }
+              $folder = Get-Content $(Build.ArtifactStagingDirectory)\pipelinefolders.txt
+              Write-Host "folders: $folder`n "
+              
+              
+
+
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Pipeline.Workspace)'
+            artifact: 'drop'
+            publishLocation: 'pipeline'
+
+
+- stage: QA
+  displayName: QA
+  condition: ${{parameters.DeployToQAEast}}   
+  dependsOn: Publish
+
+  jobs:
+  - deployment: DeploymentJobEast
+    displayName: Deploy ADF to QA East
+    condition: ${{parameters.DeployToQAEast}}
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'qa'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - powershell: |
+              Install-Module Az.DataFactory -MinimumVersion "1.10.0" -Force
+              Install-Module -Name "azure.datafactory.tools" -Force
+              Import-Module -Name "azure.datafactory.tools" -Force
+              Get-ChildItem .
+            displayName: 'Install dependencies'
+          - task: AzurePowerShell@5
+            displayName: Deploy ADF to QA East
+            inputs:
+              azureSubscription: 'DataOps_Service_Connection'
+              ScriptType: 'FilePath'
+              ScriptPath: '$(Pipeline.Workspace)/drop/s/DataOpsDev-ADF1/Publish-Adf.ps1'
+              ScriptArguments: '-Environment qa -ShortLocation east'
+              azurePowerShellVersion: 'LatestVersion'  
